@@ -36,50 +36,65 @@ void streamRtsFile(char *file)
 		}
 	} else {
 		printf("Unable to open %s\n", file);
+		xmlTextReaderClose(reader);
 	}
 
-	//xmlTextReaderClose(reader);
 }
 
-void getSetInfo(xmlDocPtr file) {
-	xmlXPathContextPtr context;
-	xmlXPathObjectPtr result;
-
-	xmlChar *xpath = (xmlChar*) "/Set";
-
-	context = xmlXPathNewContext(file);
-	if (context == NULL) {
-		fprintf(stderr, "Error in xmlXPathNewContext\n");
+void getSetInfo(xmlTextReaderPtr reader) {
+	if (reader == NULL) {
+		fprintf(stderr, "Unable to access the file.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	// Selecciona el elemento Set de la raìz del documento
-	result = xmlXPathEvalExpression(xpath, context);
-	if (result == NULL) {
-		fprintf(stderr, "Error in xmlXPathEvalExpression\n");
+	int ret;
+	ret = xmlTextReaderRead(reader);
+
+	// Si no se recupera un siguiente nodo, se termina la ejecución
+	if (ret != 1) {
+		fprintf(stderr, "ERROR: Unable to parse XML file.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if (xmlXPathNodeSetIsEmpty(result->nodesetval)) {
-		xmlXPathFreeObject(result);
-		fprintf(stderr, "No Set tag, invalid file.\n");
+	xmlChar *name;
+	name = xmlTextReaderLocalName(reader);
+
+	// Si el nodo recuperado no corresponde al tag Set, se aborta
+	if (xmlStrcasecmp(name,  (const xmlChar*)"Set") != 0) { 
+		xmlFree(name);
+		fprintf(stderr, "ERROR: No `Set` tag. Invalid XML file.\n");
+		exit(EXIT_FAILURE);
+	}
+	xmlFree(name);
+	
+	// Comprueba que el nodo contenga atributos
+	if (xmlTextReaderHasAttributes(reader) != 1) {
+		fprintf(stderr, "ERROR: `Set` tag has no attributes.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	printf("%d\n", result->nodesetval->nodeNr);
-	xmlXPathFreeObject(result);
+	xmlChar *value;
+
+	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"size");
+	printf("Expected number of RTS: %s\n", value);
+	xmlFree(value);
+
+	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"n");
+	printf("Number of tasks per RTS: %s\n", value);
+	xmlFree(value);
 }
 
-xmlDocPtr getDoc(char *filename) {
-	xmlDocPtr doc;
-	doc = xmlParseFile(filename);
+xmlTextReaderPtr getDoc(char* file) {
+	xmlTextReaderPtr reader;
 
-	if (doc == NULL) {
-		fprintf(stderr, "No se pudo parsear el documento.\n");
+	reader = xmlNewTextReaderFilename(file);
+
+	if (reader == NULL) {
+		fprintf(stderr, "Unable to open %s\n", file);
 		exit(EXIT_FAILURE);
 	}
 
-	return doc;
+	return reader;
 }
 
 int main(int argc, char **argv) 
@@ -92,7 +107,10 @@ int main(int argc, char **argv)
 	}
 
 	docname = argv[1];
-	getSetInfo(getDoc(docname));
+	xmlTextReaderPtr reader = getDoc(docname);
+	getSetInfo(reader);
+	xmlFreeTextReader(reader);
+
 	//streamRtsFile(docname);
 
 	return(1);
