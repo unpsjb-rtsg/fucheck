@@ -107,7 +107,6 @@ int main(int argc, char **argv)
 	}
 
 	docname = argv[1];
-
 	xmlTextReaderPtr reader = getDoc(docname);
 	getSetInfo(reader);
 	xmlFreeTextReader(reader);
