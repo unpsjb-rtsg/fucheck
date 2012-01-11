@@ -5,41 +5,72 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
-int rtsCount;
-int expectedRtsCount;
-int taskNr;
+int rtsNr; 	// Número efectivo de STR en el archivo
+int expRtsNr;	// Número esperado de STR en el archivo
+int taskNr;	// Nùmero de tareas de cada STR
+double fu;	// FU calculado para cada STR
+double expFu;	// FU esperado para cada STR
 
 void processNode(xmlTextReaderPtr reader) {
 	xmlChar *name;
+	xmlChar *wcet;
+	xmlChar *period;
+	xmlChar *expFuChar;
+
 	name = xmlTextReaderLocalName(reader);
-	if (xmlStrcmp(name,  (const xmlChar*)"Set") == 0) { 
-		printf("%s\n",  name);
+	if (xmlStrcasecmp(name,  (const xmlChar*)"S") == 0) { 
+		// Tag de inicio
+		if (xmlTextReaderNodeType(reader) == 1) {
+			rtsNr = rtsNr + 1;
+			expFuChar = xmlTextReaderGetAttribute(reader,  (const xmlChar*)"U");
+			expFu = atof((char*) expFuChar) / 100.0;
+			xmlFree(expFuChar);
+		}
+
+		// Tag de cierre
+		if (xmlTextReaderNodeType(reader) == 15) {
+			double diff;
+			diff = abs(fu - expFu);
+			if (diff > 0.05) {
+				fprintf(stderr, "ERROR: %.3f <> %.3f\n", fu, expFu);
+			}
+			fu = 0.0;
+		}
 	}
+
+	// Tarea
+	if (xmlStrcasecmp(name,  (const xmlChar*)"i") == 0) { 
+		wcet = xmlTextReaderGetAttribute(reader, (const xmlChar*)"C");
+		period = xmlTextReaderGetAttribute(reader, (const xmlChar*)"T");
+		fu = fu + atof((char*) wcet) / atof((char*) period);
+		xmlFree(wcet);
+		xmlFree(period);
+	}
+
 	xmlFree(name);
 }
 
-void streamRtsFile(char *file) 
+void streamRtsFile(xmlTextReaderPtr reader) 
 {
-	xmlTextReaderPtr reader;
-	int ret;
-
-	reader = xmlNewTextReaderFilename(file);
-
-	if (reader != NULL) {
-		ret = xmlTextReaderRead(reader);
-		while (ret == 1) {
-			processNode(reader);
-			ret = xmlTextReaderRead(reader);
-		}
-		xmlFreeTextReader(reader);
-		if (ret != 0) {
-			printf("%s: failed to parse\n", file);
-		}
-	} else {
-		printf("Unable to open %s\n", file);
-		xmlTextReaderClose(reader);
+	if (reader == NULL) {
+		fprintf(stderr, "Unable to access the file.\n");
+		exit(EXIT_FAILURE);
 	}
 
+	int ret;
+
+	ret = xmlTextReaderRead(reader);
+	while (ret == 1) {
+		processNode(reader);
+		ret = xmlTextReaderRead(reader);
+	}
+
+	if (ret != 0) {
+		printf("Failed to parse.\n");
+		return;
+	}
+
+	printf("Number of RTS in file: %d\n", rtsNr);
 }
 
 void getSetInfo(xmlTextReaderPtr reader) {
@@ -74,12 +105,14 @@ void getSetInfo(xmlTextReaderPtr reader) {
 		exit(EXIT_FAILURE);
 	}
 
+	printf("=== File info from header ===\n");
+
 	xmlChar *value;
 
 	// Número de grupos de tareas en el archivo
 	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"size");
-	expectedRtsCount = atoi((char*) value);
-	printf("Expected number of RTS: %d\n", expectedRtsCount);
+	expRtsNr = atoi((char*) value);
+	printf("Expected number of RTS: %d\n", expRtsNr);
 	xmlFree(value);
 
 	// Cantidad de tareas por cada sistema
@@ -104,20 +137,25 @@ xmlTextReaderPtr getDoc(char* file) {
 
 int main(int argc, char **argv) 
 {
+	rtsNr = 0;
+
 	char *docname;
 
 	if (argc <= 1) {
-		printf("Usage: %s docname\n", argv[0]);
+		printf("Usage: %s file\n", argv[0]);
 		return(0);
 	}
 
 	docname = argv[1];
 
 	xmlTextReaderPtr reader = getDoc(docname);
+
 	getSetInfo(reader);
+
+	streamRtsFile(reader);
+
 	xmlFreeTextReader(reader);
 
-	//streamRtsFile(docname);
 
 	return(1);
 }
