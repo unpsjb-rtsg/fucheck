@@ -7,6 +7,7 @@
 
 int rtsCount;
 int expectedRtsCount;
+int taskNr;
 
 void processNode(xmlTextReaderPtr reader) {
 	xmlChar *name;
@@ -75,12 +76,16 @@ void getSetInfo(xmlTextReaderPtr reader) {
 
 	xmlChar *value;
 
+	// Número de grupos de tareas en el archivo
 	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"size");
-	printf("Expected number of RTS: %s\n", value);
+	expectedRtsCount = atoi((char*) value);
+	printf("Expected number of RTS: %d\n", expectedRtsCount);
 	xmlFree(value);
 
+	// Cantidad de tareas por cada sistema
 	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"n");
-	printf("Number of tasks per RTS: %s\n", value);
+	taskNr = atoi((char*) value);
+	printf("Number of tasks per RTS: %d\n", taskNr);
 	xmlFree(value);
 }
 
