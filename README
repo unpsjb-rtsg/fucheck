@@ -1,3 +1,7 @@
 fucheck
 
 Utilidad para verificar el FU de distintos grupos de tareas de tiempo real.
+
+Requerimientos:
+* libxml2
+* gcl - GNU Scientific Library
