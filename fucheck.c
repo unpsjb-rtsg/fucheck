@@ -8,6 +8,8 @@
 #include <libxml/xpath.h>
 #include <gsl/gsl_statistics.h>
 
+#define DFLT_DELTA 0.005
+
 int rtsNr; 	// Número efectivo de STR en el archivo
 int expRtsNr;	// Número esperado de STR en el archivo
 int taskNr;	// Nùmero de tareas de cada STR
@@ -238,7 +240,7 @@ int main(int argc, char **argv)
 		printUsage(stderr, EXIT_FAILURE);
 	}
 
-	delta = 0.005;
+	delta = DFLT_DELTA;
 
 	do {
 		nextOption = getopt_long(argc, argv, shortOpts, longOpts, NULL);
