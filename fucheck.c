@@ -13,7 +13,9 @@ int expRtsNr;	// Número esperado de STR en el archivo
 int taskNr;	// Nùmero de tareas de cada STR
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
+double gexpFu;	// FU esperado global
 double *fuArray;	// Arreglo con los FU de cada STR
+double delta;	// Delta para comparar doubles
 const char *progName;	// Nombre del programa
 
 void processNode(xmlTextReaderPtr reader) 
@@ -46,6 +48,10 @@ void processNode(xmlTextReaderPtr reader)
 			diff = fabs(fu - expFu);
 			if (diff > 0.05) {
 				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", rtsNr, fu, expFu);
+			}
+			diff = fabs(fu - gexpFu / 100.0);
+			if (diff > 0.05) {
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f\n", rtsNr, fu, gexpFu / 100.0); 
 			}
 			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
@@ -150,9 +156,22 @@ void getSetInfo(xmlTextReaderPtr reader) {
 	taskNr = atoi((char*) value);
 	printf("Number of tasks per RTS: %d\n", taskNr);
 	xmlFree(value);
+
+	// FU para todos los RTS
+	if (gexpFu == 0) {
+		value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"u");
+		if (value == NULL) {
+			xmlFree(value);
+			fprintf(stderr, "ERROR: `Set` tag has no FU attribute. Specify one with --fu option.\n");
+			exit(EXIT_FAILURE);
+		}
+		gexpFu = atof((char*) value);
+		xmlFree(value);
+	}
+	printf("Expected FU for all RTS: %.3f (%.3f)\n", gexpFu, gexpFu / 100.0);
 }
 
-xmlTextReaderPtr getDoc(char* file) 
+xmlTextReaderPtr getDoc(char *file) 
 {
 	xmlTextReaderPtr reader;
 
@@ -171,8 +190,18 @@ void printUsage(FILE *stream,  int exitCode)
 	fprintf(stream, "Usage: %s [options] file\n", progName);
 	fprintf(stream, 
 			"\t-h  --help\tDisplay this usage information.\n"
-			"\t-u  --fu\tExpected FU for all RTS in file.\n");
+			"\t-u  --fu\tExpected FU for all RTS in file.\n"
+			"\t-d  --delta\tMaximum tolerance for FU values.\n");
 	exit(exitCode);
+}
+
+void setGlobalExpFu(double fu)
+{
+	if (fu <= 0 || fu > 100) {
+		fprintf(stderr, "Invalid FU: %.3f (%.3f)\n", fu, fu / 100.0);
+		exit(EXIT_FAILURE);
+	}
+	gexpFu = fu;
 }
 
 int main(int argc, char **argv) 
@@ -183,11 +212,12 @@ int main(int argc, char **argv)
 	int nextOption;
 
 	// Opciones validas, formato corto
-	const char *shortOpts = "hu";
+	const char *shortOpts = "hu:d:";
 	// Opciones en formato largo
 	const struct option longOpts[] = {
 		{"help", 0, NULL, 'h'}, 
 		{"fu", 1, NULL, 'u'}, 
+		{"delta", 1, NULL, 'd'}, 
 		{NULL, 0, NULL, 0}
 	};
 
@@ -204,8 +234,8 @@ int main(int argc, char **argv)
 			case 'h': // -h o --help
 				printUsage(stdout, EXIT_SUCCESS);
 			case 'u': // -u o --fu
-				fprintf(stderr, "TODO!\n");
-				exit(EXIT_FAILURE);
+				setGlobalExpFu(atof(optarg));
+				break;
 			case '?': // opcion invalida
 				printUsage(stderr, EXIT_FAILURE);
 			case -1: // no ha más opciones
