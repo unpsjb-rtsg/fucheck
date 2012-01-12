@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <math.h>
 #include <libxml/xmlreader.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -15,7 +16,8 @@ double expFu;	// FU esperado para cada STR
 double *fuArray;	// Arreglo con los FU de cada STR
 const char *progName;	// Nombre del programa
 
-void processNode(xmlTextReaderPtr reader) {
+void processNode(xmlTextReaderPtr reader) 
+{
 	xmlChar *name;
 	xmlChar *wcet;
 	xmlChar *period;
@@ -41,9 +43,9 @@ void processNode(xmlTextReaderPtr reader) {
 		// Tag de cierre
 		if (xmlTextReaderNodeType(reader) == 15) {
 			double diff;
-			diff = abs(fu - expFu);
+			diff = fabs(fu - expFu);
 			if (diff > 0.05) {
-				fprintf(stderr, "ERROR: %.3f <> %.3f\n", fu, expFu);
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", rtsNr, fu, expFu);
 			}
 			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
@@ -71,6 +73,7 @@ void streamRtsFile(xmlTextReaderPtr reader)
 
 	int ret;
 
+	printf("=== Analyzing ===\n");
 	ret = xmlTextReaderRead(reader);
 	while (ret == 1) {
 		processNode(reader);
@@ -86,15 +89,15 @@ void streamRtsFile(xmlTextReaderPtr reader)
 
 	printf("=== FU result ===\n");
 	double mean = gsl_stats_mean(fuArray, 1, expRtsNr);
-	printf("Mean: %.3f\n", mean);
+	printf("Mean:\t\t%.3f\n", mean);
 	double variance = gsl_stats_variance_m(fuArray, 1, expRtsNr, mean);
-	printf("Variance: %.3f\n", variance);
+	printf("Variance:\t%.3f\n", variance);
 	double stddev = gsl_stats_sd_m(fuArray, 1, expRtsNr, mean);
-	printf("Std. Dev: %.3f\n",  stddev);
+	printf("Std. Dev:\t%.3f\n",  stddev);
 	double max = gsl_stats_max(fuArray, 1, expRtsNr);
-	printf("Max:  %.3f\n", max);
+	printf("Max:\t\t%.3f\n", max);
 	double min = gsl_stats_min(fuArray, 1, expRtsNr);
-	printf("Min: %.3f\n", min);
+	printf("Min:\t\t%.3f\n", min);
 }
 
 void getSetInfo(xmlTextReaderPtr reader) {
@@ -129,7 +132,7 @@ void getSetInfo(xmlTextReaderPtr reader) {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("=== File info from header ===\n");
+	printf("=== File info ===\n");
 
 	xmlChar *value;
 
@@ -213,6 +216,8 @@ int main(int argc, char **argv)
 	} while (nextOption != -1);
 
 	docname = argv[optind];
+	
+	printf("Analize file %s\n", docname);
 
 	xmlTextReaderPtr reader = getDoc(docname);
 	getSetInfo(reader);
