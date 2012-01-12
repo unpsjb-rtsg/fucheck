@@ -46,11 +46,11 @@ void processNode(xmlTextReaderPtr reader)
 		if (xmlTextReaderNodeType(reader) == 15) {
 			double diff;
 			diff = fabs(fu - expFu);
-			if (diff > 0.05) {
+			if (diff > delta) {
 				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", rtsNr, fu, expFu);
 			}
 			diff = fabs(fu - gexpFu / 100.0);
-			if (diff > 0.05) {
+			if (diff > delta) {
 				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f\n", rtsNr, fu, gexpFu / 100.0); 
 			}
 			fuArray[rtsNr - 1] = fu;
@@ -169,6 +169,8 @@ void getSetInfo(xmlTextReaderPtr reader) {
 		xmlFree(value);
 	}
 	printf("Expected FU for all RTS: %.3f (%.3f)\n", gexpFu, gexpFu / 100.0);
+
+	printf("Delta: %.3f\n", delta);
 }
 
 xmlTextReaderPtr getDoc(char *file) 
@@ -204,6 +206,15 @@ void setGlobalExpFu(double fu)
 	gexpFu = fu;
 }
 
+void setDelta(double d) 
+{
+	if (d <= 0) {
+		fprintf(stderr, "Invalid delta: %.3f\n", d);
+		exit(EXIT_FAILURE);
+	}
+	delta = d;
+}
+
 int main(int argc, char **argv) 
 {
 	rtsNr = 0;
@@ -227,6 +238,8 @@ int main(int argc, char **argv)
 		printUsage(stderr, EXIT_FAILURE);
 	}
 
+	delta = 0.005;
+
 	do {
 		nextOption = getopt_long(argc, argv, shortOpts, longOpts, NULL);
 
@@ -235,6 +248,9 @@ int main(int argc, char **argv)
 				printUsage(stdout, EXIT_SUCCESS);
 			case 'u': // -u o --fu
 				setGlobalExpFu(atof(optarg));
+				break;
+			case 'd': // -d o --delta
+				setDelta(atof(optarg));
 				break;
 			case '?': // opcion invalida
 				printUsage(stderr, EXIT_FAILURE);
