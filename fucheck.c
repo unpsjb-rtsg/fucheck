@@ -12,7 +12,9 @@
 
 int rtsNr; 	// Número efectivo de STR en el archivo
 int expRtsNr;	// Número esperado de STR en el archivo
-int taskNr;	// Nùmero de tareas de cada STR
+int taskNr;	// Número de tareas de cada STR
+int validFuCnt;	// Número de STR con FU esperado
+int invalidFuCnt;	// Número de STR con FU erroneo
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
 double gexpFu;	// FU esperado global
@@ -46,19 +48,31 @@ void processNode(xmlTextReaderPtr reader)
 
 		// Tag de cierre
 		if (xmlTextReaderNodeType(reader) == 15) {
-			double diff;
+			int flag;
+			double diff, diff2;
+			flag = 0;
 			diff = fabs(fu - expFu);
+			diff2 = fabs(fu - gexpFu / 100.0);
 			if (diff > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", 
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (S)\n", 
 						rtsNr, fu, expFu);
+				invalidFuCnt = invalidFuCnt + 1;
+				flag = 1;
 			}
-			diff = fabs(fu - gexpFu / 100.0);
-			if (diff > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f\n", 
+			else if (diff2 > delta) {
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (Set)\n", 
 						rtsNr, fu, gexpFu / 100.0); 
+				if (flag == 0) {
+					invalidFuCnt = invalidFuCnt + 1;
+				}
+			}
+			else {
+				// FU correcto
+				validFuCnt = validFuCnt + 1;
 			}
 			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
+			flag = 0;
 		}
 	}
 
@@ -95,8 +109,6 @@ void streamRtsFile(xmlTextReaderPtr reader)
 		return;
 	}
 
-	printf("Number of RTS in file: %d\n", rtsNr);
-
 	printf("=== FU result ===\n");
 	double mean = gsl_stats_mean(fuArray, 1, expRtsNr);
 	printf("Mean:\t\t%.3f\n", mean);
@@ -108,6 +120,9 @@ void streamRtsFile(xmlTextReaderPtr reader)
 	printf("Max:\t\t%.3f\n", max);
 	double min = gsl_stats_min(fuArray, 1, expRtsNr);
 	printf("Min:\t\t%.3f\n", min);
+	printf("Total RTS:\t%d\n", rtsNr);
+	printf("Valid RTS:\t%d\n", validFuCnt);
+	printf("Invalid RTS:\t%d\n", invalidFuCnt);
 }
 
 void getSetInfo(xmlTextReaderPtr reader) 
@@ -223,6 +238,8 @@ void setDelta(double d)
 int main(int argc, char **argv) 
 {
 	rtsNr = 0;
+	validFuCnt = 0;
+	invalidFuCnt = 0;
 
 	char *docname;
 	int nextOption;
@@ -267,8 +284,6 @@ int main(int argc, char **argv)
 	} while (nextOption != -1);
 
 	docname = argv[optind];
-	
-	printf("Analize file %s\n", docname);
 
 	xmlTextReaderPtr reader = getDoc(docname);
 	getSetInfo(reader);
