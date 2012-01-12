@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <getopt.h>
 #include <libxml/xmlreader.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -11,7 +12,8 @@ int expRtsNr;	// Número esperado de STR en el archivo
 int taskNr;	// Nùmero de tareas de cada STR
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
-double *fuArray;
+double *fuArray;	// Arreglo con los FU de cada STR
+const char *progName;	// Nombre del programa
 
 void processNode(xmlTextReaderPtr reader) {
 	xmlChar *name;
@@ -147,7 +149,8 @@ void getSetInfo(xmlTextReaderPtr reader) {
 	xmlFree(value);
 }
 
-xmlTextReaderPtr getDoc(char* file) {
+xmlTextReaderPtr getDoc(char* file) 
+{
 	xmlTextReaderPtr reader;
 
 	reader = xmlNewTextReaderFilename(file);
@@ -160,18 +163,56 @@ xmlTextReaderPtr getDoc(char* file) {
 	return reader;
 }
 
+void printUsage(FILE *stream,  int exitCode) 
+{
+	fprintf(stream, "Usage: %s [options] file\n", progName);
+	fprintf(stream, 
+			"\t-h  --help\tDisplay this usage information.\n"
+			"\t-u  --fu\tExpected FU for all RTS in file.\n");
+	exit(exitCode);
+}
+
 int main(int argc, char **argv) 
 {
 	rtsNr = 0;
 
 	char *docname;
+	int nextOption;
+
+	// Opciones validas, formato corto
+	const char *shortOpts = "hu";
+	// Opciones en formato largo
+	const struct option longOpts[] = {
+		{"help", 0, NULL, 'h'}, 
+		{"fu", 1, NULL, 'u'}, 
+		{NULL, 0, NULL, 0}
+	};
+
+	progName = argv[0];
 
 	if (argc <= 1) {
-		printf("Usage: %s file\n", argv[0]);
-		return(0);
+		printUsage(stderr, EXIT_FAILURE);
 	}
 
-	docname = argv[1];
+	do {
+		nextOption = getopt_long(argc, argv, shortOpts, longOpts, NULL);
+
+		switch (nextOption) {
+			case 'h': // -h o --help
+				printUsage(stdout, EXIT_SUCCESS);
+			case 'u': // -u o --fu
+				fprintf(stderr, "TODO!\n");
+				exit(EXIT_FAILURE);
+			case '?': // opcion invalida
+				printUsage(stderr, EXIT_FAILURE);
+			case -1: // no ha más opciones
+				break;
+			default: // inesperado
+				abort();
+		}
+	} while (nextOption != -1);
+
+	docname = argv[optind];
 
 	xmlTextReaderPtr reader = getDoc(docname);
 	getSetInfo(reader);
@@ -180,5 +221,5 @@ int main(int argc, char **argv)
 	free(fuArray);
 	xmlFreeTextReader(reader);
 
-	return(1);
+	return(EXIT_SUCCESS);
 }
