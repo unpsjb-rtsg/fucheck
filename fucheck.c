@@ -49,11 +49,13 @@ void processNode(xmlTextReaderPtr reader)
 			double diff;
 			diff = fabs(fu - expFu);
 			if (diff > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", rtsNr, fu, expFu);
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f <> %.3f\n", 
+						rtsNr, fu, expFu);
 			}
 			diff = fabs(fu - gexpFu / 100.0);
 			if (diff > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f\n", rtsNr, fu, gexpFu / 100.0); 
+				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f\n", 
+						rtsNr, fu, gexpFu / 100.0); 
 			}
 			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
@@ -108,7 +110,8 @@ void streamRtsFile(xmlTextReaderPtr reader)
 	printf("Min:\t\t%.3f\n", min);
 }
 
-void getSetInfo(xmlTextReaderPtr reader) {
+void getSetInfo(xmlTextReaderPtr reader) 
+{
 	if (reader == NULL) {
 		fprintf(stderr, "Unable to access the file.\n");
 		exit(EXIT_FAILURE);
