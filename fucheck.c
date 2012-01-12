@@ -4,12 +4,14 @@
 #include <libxml/xmlreader.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <gsl/gsl_statistics.h>
 
 int rtsNr; 	// Número efectivo de STR en el archivo
 int expRtsNr;	// Número esperado de STR en el archivo
 int taskNr;	// Nùmero de tareas de cada STR
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
+double *fuArray;
 
 void processNode(xmlTextReaderPtr reader) {
 	xmlChar *name;
@@ -22,6 +24,13 @@ void processNode(xmlTextReaderPtr reader) {
 		// Tag de inicio
 		if (xmlTextReaderNodeType(reader) == 1) {
 			rtsNr = rtsNr + 1;
+			
+			// Comprueba que el nodo contenga atributos
+			if (xmlTextReaderHasAttributes(reader) != 1) {
+				fprintf(stderr, "ERROR: `S` tag has no attributes.\n");
+				exit(EXIT_FAILURE);
+			}
+			
 			expFuChar = xmlTextReaderGetAttribute(reader,  (const xmlChar*)"U");
 			expFu = atof((char*) expFuChar) / 100.0;
 			xmlFree(expFuChar);
@@ -34,6 +43,7 @@ void processNode(xmlTextReaderPtr reader) {
 			if (diff > 0.05) {
 				fprintf(stderr, "ERROR: %.3f <> %.3f\n", fu, expFu);
 			}
+			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
 		}
 	}
@@ -71,6 +81,18 @@ void streamRtsFile(xmlTextReaderPtr reader)
 	}
 
 	printf("Number of RTS in file: %d\n", rtsNr);
+
+	printf("=== FU result ===\n");
+	double mean = gsl_stats_mean(fuArray, 1, expRtsNr);
+	printf("Mean: %.3f\n", mean);
+	double variance = gsl_stats_variance_m(fuArray, 1, expRtsNr, mean);
+	printf("Variance: %.3f\n", variance);
+	double stddev = gsl_stats_sd_m(fuArray, 1, expRtsNr, mean);
+	printf("Std. Dev: %.3f\n",  stddev);
+	double max = gsl_stats_max(fuArray, 1, expRtsNr);
+	printf("Max:  %.3f\n", max);
+	double min = gsl_stats_min(fuArray, 1, expRtsNr);
+	printf("Min: %.3f\n", min);
 }
 
 void getSetInfo(xmlTextReaderPtr reader) {
@@ -115,6 +137,9 @@ void getSetInfo(xmlTextReaderPtr reader) {
 	printf("Expected number of RTS: %d\n", expRtsNr);
 	xmlFree(value);
 
+	// Reservamos memoria para almacenar los FU
+	fuArray = (double *) malloc(expRtsNr * sizeof(double));
+
 	// Cantidad de tareas por cada sistema
 	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"n");
 	taskNr = atoi((char*) value);
@@ -149,13 +174,11 @@ int main(int argc, char **argv)
 	docname = argv[1];
 
 	xmlTextReaderPtr reader = getDoc(docname);
-
 	getSetInfo(reader);
-
 	streamRtsFile(reader);
 
+	free(fuArray);
 	xmlFreeTextReader(reader);
-
 
 	return(1);
 }
