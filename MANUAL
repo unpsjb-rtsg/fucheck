@@ -1,0 +1,66 @@
+fucheck - Manual de Usuario
+
+Sinopsis:
+	fucheck [options] archivo
+
+Descripción:
+fucheck comprueba que los FU de los STR contenidos en el archivo XML sean correctos, comparandolos
+con el FU especificado para cada STR (en el atributo `u' del tag `S') y con el FU global esperado
+para todos los STR (atributo `u' en el tag `Set'). Este último valor puede ser especificado como un
+parametro en la línea de comando.
+
+El resultado de la ejecución es un informe con el número de STR esperado, el número de STR efectivamente
+contenidos e información acerca del FU, así como una lista de aquellos STR con FU erróneo.
+
+Parámetros:
+	-u  --fu
+		Permite especificar el FU esperado para TODOS los STR en el archivo. El valor del FU
+		debe ser mayor a 0 y menor o igual a 100. En caso de que el archivo XML cuente con el 
+		atributo `u' en el tag `Set', este parametro puede ser omitido. Caso contrario, el
+		valor especificado tiene prioridad sobre el provisto en el archivo.
+
+	-d  --delta
+		Permite especificar el delta utilizado para comparar el FU de cada STR con el FU 
+		esperado. El valor por defecto es 0.005.
+
+	-h  --help
+		Lista el modo de uso y los parámetros.
+
+Informe:
+Se detalla a continuación el formato de salida.
+
+	File Info
+		Esta sección presenta el número de STR que el XML informa que contiene,  y el número
+		de tareas para cada STR. Se informa también el delta empleado.
+
+	Analyzing
+		En caso de encontrar un FU erroneo para un STR, se informa el número del mismo y si
+		difiere con el valor de FU previsto para el sistema (S) o con el valor global (Set).
+
+	FU Result
+		Se informa la media del FU de todos los STR analizados, tanto correctos como con un 
+		valor de FU erroneo. Se presenta también el valor de la varianza, desviación estándar y
+		máximo y mínimo valor de FU.
+		También se informa del número efectivo de STR que contiene el XML, y cuantos de los
+		mismos tiene un FU válido (`Valid RTS') y cuantos son erroneos (`Invalid RTS').
+
+Ejemplo:
+$./fucheck -u 78 rts.xml
+=== File info ===
+Expected number of RTS: 2
+Number of tasks per RTS: 10
+Expected FU for all RTS: 78.000 (0.780)
+Delta: 0.005
+=== Analyzing ===
+ERROR -- RTS 1,  wrong FU: 0.790,  expected 0.780 (Set)
+ERROR -- RTS 2,  wrong FU: 0.790,  expected 0.780 (Set)
+=== FU result ===
+Mean:           0.790
+Variance:       0.000
+Std. Dev:       0.000
+Max:            0.790
+Min:            0.790
+Total RTS:      2
+Valid RTS:      0
+Invalid RTS:    2
+
