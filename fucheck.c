@@ -182,7 +182,7 @@ void getSetInfo(xmlTextReaderPtr reader)
 		value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"u");
 		if (value == NULL) {
 			xmlFree(value);
-			fprintf(stderr, "ERROR: `Set` tag has no FU attribute. Specify one with --fu option.\n");
+			fprintf(stderr, "ERROR: `Set` tag has no FU value. Specify one with --fu option.\n");
 			exit(EXIT_FAILURE);
 		}
 		gexpFu = atof((char*) value);
