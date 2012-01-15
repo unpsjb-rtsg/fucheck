@@ -11,6 +11,11 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
+AC_CHECK_LIB([m], [cos])
+AC_CHECK_LIB([gslcblas], [cblas_dgemm])
+AC_CHECK_LIB([gsl], [gsl_blas_dgemm])
+
+PKG_CHECK_MODULES([LX], [libxml-2.0])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
