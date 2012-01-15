@@ -11,9 +11,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [cos])
-AC_CHECK_LIB([gslcblas], [cblas_dgemm])
-AC_CHECK_LIB([gsl], [gsl_blas_dgemm])
+AX_PATH_GSL(1.0)
 
 PKG_CHECK_MODULES([LIBXML2], [libxml-2.0])
 AC_SUBST(LIBXML2_CFLAGS)
