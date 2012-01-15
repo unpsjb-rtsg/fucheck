@@ -7,10 +7,15 @@ Actualmente se aceptan como archivos de entrada únicamente ficheros XML creados
 mediante el Generador de Conjuntos de Tareas para Simulación de Sistemas de Tiempo
 Real de la UNPSJB.
 
-Compilación:
-Para compilar fucheck ejecutar:
+Instalación:
+Para compilar y generar el ejecutable src/fucheck:
 
+$ ./configure
 $ make
+
+Para instalar el programa en el sistema, ejecutar como root o mediante sudo:
+
+# make install
 
 Requerimientos:
 * libxml2
