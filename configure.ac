@@ -1,9 +1,9 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.68])
+AC_PREREQ([2.5])
 AC_INIT([fucheck], [1.0], [someone@someserver.net])
-AM_INIT_AUTOMAKE(fucheck, 2.6)
+AM_INIT_AUTOMAKE(fucheck, 2.5)
 AC_CONFIG_SRCDIR([src/fucheck.c])
 AC_CONFIG_HEADERS([config.h])
 
