@@ -1,66 +1,70 @@
-fucheck - Manual de Usuario
+FUCHECK(1)                                                          FUCHECK(1)
 
-Sinopsis:
-	fucheck [options] archivo
 
-Descripción:
-fucheck comprueba que los FU de los STR contenidos en el archivo XML sean correctos, comparandolos
-con el FU especificado para cada STR (en el atributo `u' del tag `S') y con el FU global esperado
-para todos los STR (atributo `u' en el tag `Set'). Este último valor puede ser especificado como un
-parametro en la línea de comando.
 
-El resultado de la ejecución es un informe con el número de STR esperado, el número de STR efectivamente
-contenidos e información acerca del FU, así como una lista de aquellos STR con FU erróneo.
+[1mNOMBRE[0m
+       fucheck - Verifica los FU de un conjunto de STR
 
-Parámetros:
-	-u  --fu
-		Permite especificar el FU esperado para TODOS los STR en el archivo. El valor del FU
-		debe ser mayor a 0 y menor o igual a 100. En caso de que el archivo XML cuente con el 
-		atributo `u' en el tag `Set', este parametro puede ser omitido. Caso contrario, el
-		valor especificado tiene prioridad sobre el provisto en el archivo.
+[1mSINOPSIS[0m
+       fucheck [1m[[22mopciones[1m] [22mfichero
 
-	-d  --delta
-		Permite especificar el delta utilizado para comparar el FU de cada STR con el FU 
-		esperado. El valor por defecto es 0.005.
+[1mDESCRIPCIóN[0m
+       El  programa  [1mfucheck  [22mcomprueba  los  FU  de  los STR contenidos en el
+       fichero XML indicado. Para cada STR se calcula su FU, y  es  verificado
+       comparandolo  con  el  FU  esperado  para cada sistema, provisto por el
+       atributo  [1mu [22mdel elemento [1mS[22m, y con el valor esperado para todos  los  FU
+       del  fichero  XML,  provisto en el atributo  [1mu [22mdel elemento ra�z [1mSet[22m, o
+       especificado como parámetro en la l�nea de comandos.
 
-	-h  --help
-		Lista el modo de uso y los parámetros.
+       Como resultado de la comprobación,  se  presenta  un  informe  con  el
+       número  de STR analizados e información acerca de los FU, y una lista
+       de aquellos STR con FU erroneos.
 
-Informe:
-Se detalla a continuación el formato de salida.
+[1mOPCIONES[0m
+       [1m-u, --fu [4m[22mFU[0m
+              Especifica el FU esperado para todos los STR en el fichero  XML.
+              El  valor  pasado debe ser mayor a 0 y menor o igual a 100. Este
+              parámetro es obligatorio en caso  de  que  el  fichero  XML  no
+              cuente  con  el atributo  [1mu [22men el elemento ra�z [1mSet[22m.  En caso de
+              contar con uno, el valor pasado como parámetro tiene  preferen-
+              cia.
 
-	File Info
-		Esta sección presenta el número de STR que el XML informa que contiene,  y el número
-		de tareas para cada STR. Se informa también el delta empleado.
+       [1m-d, --delta [4m[22mdelta[0m
+              Especifica  el  delta  a utilizar al comparar si el FU calculado
+              para un RTS coincide con el FU esperado. El valor por defecto es
+               [1m0.005[22m.
 
-	Analyzing
-		En caso de encontrar un FU erroneo para un STR, se informa el número del mismo y si
-		difiere con el valor de FU previsto para el sistema (S) o con el valor global (Set).
+       [1m-h, --help[0m
+              Muestra  un  mensaje  en  la  salida  estándar sobre el modo de
+              empleo y acaba con estado de éxito.
 
-	FU Result
-		Se informa la media del FU de todos los STR analizados, tanto correctos como con un 
-		valor de FU erroneo. Se presenta también el valor de la varianza, desviación estándar y
-		máximo y mínimo valor de FU.
-		También se informa del número efectivo de STR que contiene el XML, y cuantos de los
-		mismos tiene un FU válido (`Valid RTS') y cuantos son erroneos (`Invalid RTS').
+[1mRESULTADO[0m
+       En esta sección se describe el reporte  generado  por  una  ejecución
+       exitosa del programa.
 
-Ejemplo:
-$./fucheck -u 78 rts.xml
-=== File info ===
-Expected number of RTS: 2
-Number of tasks per RTS: 10
-Expected FU for all RTS: 78.000 (0.780)
-Delta: 0.005
-=== Analyzing ===
-ERROR -- RTS 1,  wrong FU: 0.790,  expected 0.780 (Set)
-ERROR -- RTS 2,  wrong FU: 0.790,  expected 0.780 (Set)
-=== FU result ===
-Mean:           0.790
-Variance:       0.000
-Std. Dev:       0.000
-Max:            0.790
-Min:            0.790
-Total RTS:      2
-Valid RTS:      0
-Invalid RTS:    2
+       [1mSección `File Info'[0m
+              Presenta  el  nùmero de STR que el fichero XML informa que con-
+              tiene, y el  número  de  tareas  para  cada  STR.  Se  presenta
+              también el valor de delta a emplear.
+       [1mSección `Analyzing'[0m
+              Lista  los  STR  con FU erroneos. Informa el número o identifi-
+              cador del STR, el FU calculado para el mismo y cual era el  pre-
+              visto.  Entre  parentesis  se  especifica  si  el FU difiere con
+              respecto al previsto para el RTS ([1mS[22m) o con el global ([1mSet[22m).
+       [1mSección `FU Result'[0m
+              Presenta la media de FU de todos los STR analizados, tantos cor-
+              rectos  como con FU erroneos, junto con la varianza, desviación
+              estándar y el valor máximo y m�nimo entre todos los  FU  anal-
+              izados.   Se  informa  también  el número de STR analizados, y
+              cuantos de los mismos  son  válidos  (FU  correcto)  y  cuantos
+              erróneos (el FU difiere del esperado).
 
+[1mCONFORME A[0m
+       ISO C99
+
+[1mAUTOR[0m
+       Francisco E. Paez
+
+
+
+Versión 1.0                     Enero de 2012                      FUCHECK(1)
