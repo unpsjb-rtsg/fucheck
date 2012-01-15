@@ -1,12 +1,64 @@
-.TH FUCHECK 1 LOCAL
-.SH NAME
+.TH FUCHECK 1 "Enero de 2012" "Versión 1.0"
+.SH NOMBRE
+fucheck - Verifica los FU de un conjunto de STR
+.SH SINOPSIS
 fucheck
-.SH SYNOPSIS
-.SH AVAILABILITY
-Tested only in Linux, should compile in any *NIX flavors.
-.SH DESCRIPTION
-Descripción
-.SH OPTIONS
-Opciones
-.SH AUTHOR
+.BR "[" "opciones" "] "
+fichero
+.SH DESCRIPCIóN
+El programa
+.B fucheck
+comprueba los FU de los STR contenidos en el fichero XML indicado. Para cada STR
+se calcula su FU, y es verificado comparandolo con el
+FU esperado para cada sistema, provisto por el atributo
+.BR " u " "del elemento " "S" ", "
+y con el valor esperado para todos los FU del fichero XML, provisto en el atributo
+.BR " u " "del elemento raíz " "Set" ", "
+o especificado como parámetro en la línea de comandos.
+.PP
+Como resultado de la comprobación, se presenta un informe con el número de STR analizados
+e información acerca de los FU, y una lista de aquellos STR con FU erroneos.
+.SH OPCIONES
+.TP 
+.BI "-u, --fu " FU
+Especifica el FU esperado para todos los STR en el fichero XML. El valor pasado debe ser
+mayor a 0 y menor o igual a 100. Este parámetro es obligatorio en caso de que el fichero
+XML no cuente con el atributo 
+.BR " u " "en el elemento raíz " "Set" ". "
+En caso de contar con uno, el valor pasado como parámetro tiene preferencia.
+.TP 
+.BI "-d, --delta " delta 
+Especifica el delta a utilizar al comparar si el FU calculado para un RTS coincide con
+el FU esperado. El valor por defecto es
+.BR " 0.005" "."
+.TP 
+.B "-h, --help"
+Muestra un mensaje en la salida estándar sobre el modo de empleo y acaba con estado de éxito.
+.SH RESULTADO
+En esta sección se describe el reporte generado por una ejecución exitosa del programa.
+.PP
+.B Sección `File Info'
+.RS
+Presenta el nùmero de STR que el fichero XML informa que contiene, y el número de tareas para
+cada STR. Se presenta también el valor de delta a emplear.
+.RE
+.B Sección `Analyzing'
+.RS
+Lista los STR con FU erroneos. Informa el número o identificador del STR, el FU calculado para
+el mismo y cual era el previsto. Entre parentesis se especifica si el FU difiere con respecto
+al previsto para el RTS
+.RB "(" "S" ") "
+o con el global
+.RB "(" "Set" ")."
+.RE
+.B Sección `FU Result'
+.RS
+Presenta la media de FU de todos los STR analizados, tantos correctos como con FU erroneos, junto
+con la varianza, desviación estándar y el valor máximo y mínimo entre todos los FU analizados.
+Se informa también el número de STR analizados, y cuantos de los mismos son válidos (FU correcto) y
+cuantos erróneos (el FU difiere del esperado).
+.RE
+.SH CONFORME A
+ISO C99
+.SH AUTOR
 Francisco E. Paez
