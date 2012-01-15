@@ -1,4 +1,4 @@
-CFLAGS=-Wall -g -I/usr/include/libxml2 -I/user/include/gsl 
+CFLAGS=-Wall -std=c99 -g -I/usr/include/libxml2 -I/user/include/gsl 
 LIBS=-lxml2 -lz -lm -lgsl
 
 fucheck: fucheck.o
