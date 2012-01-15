@@ -16,6 +16,8 @@ AC_CHECK_LIB([gslcblas], [cblas_dgemm])
 AC_CHECK_LIB([gsl], [gsl_blas_dgemm])
 
 PKG_CHECK_MODULES([LX], [libxml-2.0])
+AC_SUBST(LX_CFLAGS)
+AC_SUBST(LX_LIBS)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
