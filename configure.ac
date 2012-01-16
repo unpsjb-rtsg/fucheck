@@ -18,7 +18,10 @@ AC_CHECK_LIB([gsl], [gsl_blas_dgemm], [], [
 	      exit -1
 	      ])
 
-PKG_CHECK_MODULES([LIBXML2], [libxml-2.0])
+PKG_CHECK_MODULES([LIBXML2], [libxml-2.0], [], [
+		   echo "Error! You need to have LibXml2 installed."
+		   exit -1
+		   ])
 AC_SUBST(LIBXML2_CFLAGS)
 AC_SUBST(LIBXML2_LIBS)
 
