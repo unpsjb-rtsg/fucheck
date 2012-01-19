@@ -120,15 +120,15 @@ void streamRtsFile(xmlTextReaderPtr reader)
 
 	printf("=== FU result ===\n");
 	double mean = gsl_stats_mean(fuArray, 1, expRtsNr);
-	printf("Mean:\t\t%.3f\n", mean);
+	printf("Mean:\t\t%.5f (%.3f)\n", mean, mean * 100.0);
 	double variance = gsl_stats_variance_m(fuArray, 1, expRtsNr, mean);
-	printf("Variance:\t%.3f\n", variance);
+	printf("Variance:\t%.5f\n", variance);
 	double stddev = gsl_stats_sd_m(fuArray, 1, expRtsNr, mean);
-	printf("Std. Dev:\t%.3f\n",  stddev);
+	printf("Std. Dev:\t%.5f\n",  stddev);
 	double max = gsl_stats_max(fuArray, 1, expRtsNr);
-	printf("Max:\t\t%.3f\n", max);
+	printf("Max:\t\t%.5f (%.3f)\n", max,  max * 100.0);
 	double min = gsl_stats_min(fuArray, 1, expRtsNr);
-	printf("Min:\t\t%.3f\n", min);
+	printf("Min:\t\t%.5f (%.3f)\n", min,  min * 100.0);
 	printf("Total RTS:\t%d\n", rtsNr);
 	printf("Valid RTS:\t%d\n", validFuCnt);
 	printf("Invalid RTS:\t%d\n", invalidFuCnt);
@@ -197,7 +197,7 @@ void getSetInfo(xmlTextReaderPtr reader)
 		gexpFu = atof((char*) value);
 		xmlFree(value);
 	}
-	printf("Expected FU for all RTS: %.3f (%.3f)\n", gexpFu, gexpFu / 100.0);
+	printf("Expected FU for all RTS: %.5f (%.3f)\n", gexpFu / 100.0, gexpFu);
 
 	printf("Delta: %.3f\n", delta);
 }
