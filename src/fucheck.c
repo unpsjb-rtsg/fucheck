@@ -15,6 +15,7 @@ int expRtsNr;	// Número esperado de STR en el archivo
 int taskNr;	// Número de tareas de cada STR
 int validFuCnt;	// Número de STR con FU esperado
 int invalidFuCnt;	// Número de STR con FU erroneo
+int verbose;	// Presentar o no resultados individuales
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
 double gexpFu;	// FU esperado global
@@ -54,14 +55,19 @@ void processNode(xmlTextReaderPtr reader)
 			diff = fabs(fu - expFu);
 			diff2 = fabs(fu - gexpFu / 100.0);
 			if (diff > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (S)\n", 
-						rtsNr, fu, expFu);
+				if (verbose) {
+					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (S)\n", 
+							rtsNr, fu, expFu);
+				}
 				invalidFuCnt = invalidFuCnt + 1;
 				flag = 1;
 			}
 			else if (diff2 > delta) {
-				fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (Set)\n", 
-						rtsNr, fu, gexpFu / 100.0); 
+				if (verbose) {
+					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (Set)\n", 
+							rtsNr, fu, gexpFu / 100.0); 
+				}
+				// No incrementa el contador si ya se detecto como erroneo
 				if (flag == 0) {
 					invalidFuCnt = invalidFuCnt + 1;
 				}
@@ -97,7 +103,10 @@ void streamRtsFile(xmlTextReaderPtr reader)
 
 	int ret;
 
-	printf("=== Analyzing ===\n");
+	if (verbose) {
+		printf("=== Analyzing ===\n");
+	}
+
 	ret = xmlTextReaderRead(reader);
 	while (ret == 1) {
 		processNode(reader);
@@ -211,6 +220,7 @@ void printUsage(FILE *stream,  int exitCode)
 {
 	fprintf(stream, "Usage: %s [options] file\n", progName);
 	fprintf(stream, 
+			"\t-v  --verbose\tDisplay individiual RTS info.\n" 
 			"\t-h  --help\tDisplay this usage information.\n"
 			"\t-u  --fu\tExpected FU for all RTS in file.\n"
 			"\t-d  --delta\tMaximum tolerance for FU values.\n");
@@ -245,9 +255,10 @@ int main(int argc, char **argv)
 	int nextOption;
 
 	// Opciones validas, formato corto
-	const char *shortOpts = "hu:d:";
+	const char *shortOpts = "vhu:d:";
 	// Opciones en formato largo
 	const struct option longOpts[] = {
+		{"verbose", 0, NULL, 'v'}, 
 		{"help", 0, NULL, 'h'}, 
 		{"fu", 1, NULL, 'u'}, 
 		{"delta", 1, NULL, 'd'}, 
@@ -261,11 +272,15 @@ int main(int argc, char **argv)
 	}
 
 	delta = DFLT_DELTA;
+	verbose = 0;
 
 	do {
 		nextOption = getopt_long(argc, argv, shortOpts, longOpts, NULL);
 
 		switch (nextOption) {
+			case 'v': // -s o --verbose
+				verbose = 1;
+				break;
 			case 'h': // -h o --help
 				printUsage(stdout, EXIT_SUCCESS);
 			case 'u': // -u o --fu
