@@ -16,6 +16,7 @@ int taskNr;	// Número de tareas de cada STR
 int validFuCnt;	// Número de STR con FU esperado
 int invalidFuCnt;	// Número de STR con FU erroneo
 int verbose;	// Presentar o no resultados individuales
+int cont;	// Número de STR a verificar
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
 double gexpFu;	// FU esperado global
@@ -79,6 +80,8 @@ void processNode(xmlTextReaderPtr reader)
 			fuArray[rtsNr - 1] = fu;
 			fu = 0.0;
 			flag = 0;
+			
+			cont = cont - 1;
 		}
 	}
 
@@ -108,12 +111,12 @@ void streamRtsFile(xmlTextReaderPtr reader)
 	}
 
 	ret = xmlTextReaderRead(reader);
-	while (ret == 1) {
+	while (ret == 1 && cont > 0) {
 		processNode(reader);
 		ret = xmlTextReaderRead(reader);
 	}
 
-	if (ret != 0) {
+	if (ret != 0 && cont > 0) {
 		printf("Failed to parse.\n");
 		return;
 	}
@@ -177,6 +180,11 @@ void getSetInfo(xmlTextReaderPtr reader)
 	printf("Expected number of RTS: %d\n", expRtsNr);
 	xmlFree(value);
 
+	// Número de STR a verificar si no se paso opción --limit
+	if (cont == 0) {
+		cont = expRtsNr;
+	}
+
 	// Reservamos memoria para almacenar los FU
 	fuArray = (double *) malloc(expRtsNr * sizeof(double));
 
@@ -198,6 +206,8 @@ void getSetInfo(xmlTextReaderPtr reader)
 		xmlFree(value);
 	}
 	printf("Expected FU for all RTS: %.5f (%.3f)\n", gexpFu / 100.0, gexpFu);
+	
+	printf("RTS to analize: %d\n", cont);
 
 	printf("Delta: %.3f\n", delta);
 }
@@ -223,7 +233,8 @@ void printUsage(FILE *stream,  int exitCode)
 			"\t-v  --verbose\tDisplay individiual RTS info.\n" 
 			"\t-h  --help\tDisplay this usage information.\n"
 			"\t-u  --fu\tExpected FU for all RTS in file.\n"
-			"\t-d  --delta\tMaximum tolerance for FU values.\n");
+			"\t-d  --delta\tMaximum tolerance for FU values.\n"
+			"\t-l  --limit\tTest first n RTS in file.\n");
 	exit(exitCode);
 }
 
@@ -245,6 +256,15 @@ void setDelta(double d)
 	delta = d;
 }
 
+void setLimit(int l)
+{
+	if (l <= 0) {
+		fprintf(stderr, "Invalid limit: %d\n", l);
+		exit(EXIT_FAILURE); 
+	}
+	cont = l;
+}
+
 int main(int argc, char **argv) 
 {
 	rtsNr = 0;
@@ -255,13 +275,14 @@ int main(int argc, char **argv)
 	int nextOption;
 
 	// Opciones validas, formato corto
-	const char *shortOpts = "vhu:d:";
+	const char *shortOpts = "vhu:d:l:";
 	// Opciones en formato largo
 	const struct option longOpts[] = {
 		{"verbose", 0, NULL, 'v'}, 
 		{"help", 0, NULL, 'h'}, 
 		{"fu", 1, NULL, 'u'}, 
-		{"delta", 1, NULL, 'd'}, 
+		{"delta", 1, NULL, 'd'},
+		{"limit", 1, NULL, 'l'}, 
 		{NULL, 0, NULL, 0}
 	};
 
@@ -273,6 +294,7 @@ int main(int argc, char **argv)
 
 	delta = DFLT_DELTA;
 	verbose = 0;
+	cont = 0;
 
 	do {
 		nextOption = getopt_long(argc, argv, shortOpts, longOpts, NULL);
@@ -288,6 +310,9 @@ int main(int argc, char **argv)
 				break;
 			case 'd': // -d o --delta
 				setDelta(atof(optarg));
+				break;
+			case 'l': // -l o --limit
+				setLimit(atoi(optarg));
 				break;
 			case '?': // opcion invalida
 				printUsage(stderr, EXIT_FAILURE);
