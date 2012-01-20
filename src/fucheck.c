@@ -58,7 +58,7 @@ void processNode(xmlTextReaderPtr reader)
 			diff2 = fabs(fu - gexpFu / 100.0);
 			if (diff > delta) {
 				if (verbose) {
-					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (S)\n", 
+					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.5f, expected %.5f (S)\n", 
 							rtsNr, fu, expFu);
 				}
 				invalidFuCnt = invalidFuCnt + 1;
@@ -66,7 +66,7 @@ void processNode(xmlTextReaderPtr reader)
 			}
 			else if (diff2 > delta) {
 				if (verbose) {
-					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.3f, expected %.3f (Set)\n", 
+					fprintf(stderr, "ERROR -- RTS %d, wrong FU: %.5f, expected %.5f (Set)\n", 
 							rtsNr, fu, gexpFu / 100.0); 
 				}
 				// No incrementa el contador si ya se detecto como erroneo
