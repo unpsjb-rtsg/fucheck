@@ -16,7 +16,8 @@ int taskNr;	// Número de tareas de cada STR
 int validFuCnt;	// Número de STR con FU esperado
 int invalidFuCnt;	// Número de STR con FU erroneo
 int verbose;	// Presentar o no resultados individuales
-int cont;	// Número de STR a verificar
+int limit;	// Número de STR a verificar
+int cont;	// Contador número de STR a verificar
 double fu;	// FU calculado para cada STR
 double expFu;	// FU esperado para cada STR
 double gexpFu;	// FU esperado global
@@ -122,15 +123,15 @@ void streamRtsFile(xmlTextReaderPtr reader)
 	}
 
 	printf("=== FU result ===\n");
-	double mean = gsl_stats_mean(fuArray, 1, expRtsNr);
+	double mean = gsl_stats_mean(fuArray, 1, limit);
 	printf("Mean:\t\t%.5f (%.3f)\n", mean, mean * 100.0);
-	double variance = gsl_stats_variance_m(fuArray, 1, expRtsNr, mean);
+	double variance = gsl_stats_variance_m(fuArray, 1, limit, mean);
 	printf("Variance:\t%.5f\n", variance);
-	double stddev = gsl_stats_sd_m(fuArray, 1, expRtsNr, mean);
+	double stddev = gsl_stats_sd_m(fuArray, 1, limit, mean);
 	printf("Std. Dev:\t%.5f\n",  stddev);
-	double max = gsl_stats_max(fuArray, 1, expRtsNr);
+	double max = gsl_stats_max(fuArray, 1, limit);
 	printf("Max:\t\t%.5f (%.3f)\n", max,  max * 100.0);
-	double min = gsl_stats_min(fuArray, 1, expRtsNr);
+	double min = gsl_stats_min(fuArray, 1, limit);
 	printf("Min:\t\t%.5f (%.3f)\n", min,  min * 100.0);
 	printf("Total RTS:\t%d\n", rtsNr);
 	printf("Valid RTS:\t%d\n", validFuCnt);
@@ -184,6 +185,7 @@ void getSetInfo(xmlTextReaderPtr reader)
 	if (cont == 0) {
 		cont = expRtsNr;
 	}
+	limit = cont;
 
 	// Reservamos memoria para almacenar los FU
 	fuArray = (double *) malloc(cont * sizeof(double));
