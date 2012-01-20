@@ -186,7 +186,7 @@ void getSetInfo(xmlTextReaderPtr reader)
 	}
 
 	// Reservamos memoria para almacenar los FU
-	fuArray = (double *) malloc(expRtsNr * sizeof(double));
+	fuArray = (double *) malloc(cont * sizeof(double));
 
 	// Cantidad de tareas por cada sistema
 	value = xmlTextReaderGetAttribute(reader, (const xmlChar*)"n");
