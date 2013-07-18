@@ -1,12 +1,11 @@
 fucheck
 =======
 
-Utilidad para verificar el FU de distintos grupos de tareas de tiempo real.
+Utilidad para verificar el FU de sistemas de tiempo real.
 
-Formato de archivos de entrada
+Archivos de entrada
 ------------------------------
-Actualmente se aceptan como archivos de entrada únicamente ficheros XML creados
-mediante el Generador de Conjuntos de Tareas para Simulación de Sistemas de Tiempo
+Se aceptan únicamente ficheros XML creados por el Generador de Conjuntos de Tareas para Simulación de Sistemas de Tiempo
 Real de la UNPSJB.
 
 Instalación
