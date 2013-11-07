@@ -49,7 +49,7 @@ void processNode(xmlTextReaderPtr reader)
 			xmlFree(expFuChar);
 		}
 
-		// Tag de cierre
+		// Tag de cierre -- XmlNodeType.EndElement vale 15
 		if (xmlTextReaderNodeType(reader) == 15) {
 			int flag;
 			double diff, diff2;
