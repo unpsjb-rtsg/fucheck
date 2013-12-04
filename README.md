@@ -4,7 +4,7 @@ fucheck
 Utilidad para verificar el FU de sistemas de tiempo real.
 
 Archivos de entrada
-------------------------------
+-------------------
 Se aceptan únicamente ficheros XML creados por el Generador de Conjuntos de Tareas para Simulación de Sistemas de Tiempo
 Real de la UNPSJB.
 
