@@ -21,5 +21,5 @@ Para instalar el programa en el sistema, ejecutar como root o mediante sudo:
 
 Dependencias
 ------------
-+ libxml2
-+ gcl - GNU Scientific Library
++ libxml2-dev - LibXML 2
++ libgsl-dev - GNU Scientific Library
