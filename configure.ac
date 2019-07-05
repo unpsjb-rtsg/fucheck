@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.5])
-AC_INIT([fucheck], [1.0], [someone@someserver.net])
-AM_INIT_AUTOMAKE(fucheck, 2.5)
+AC_INIT([fucheck], [1.0], [fpaez@unpata.edu.ar])
 AC_CONFIG_SRCDIR([src/fucheck.c])
 AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
@@ -14,7 +14,7 @@ AC_PROG_CC
 AC_CHECK_LIB([m], [cos])
 AC_CHECK_LIB([gslcblas], [cblas_dgemm])
 AC_CHECK_LIB([gsl], [gsl_blas_dgemm], [], [
-	      echo "Error! You need to habe GSL installed."
+	      echo "Error! You need to have GSL installed."
 	      exit -1
 	      ])
 
